@@ -1,0 +1,35 @@
+{
+  "name": "cupcoffee",
+  "version": "0.0.1",
+  "description": "Micro MVC framework for Node.js",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cupcoffeejs/cupcoffee.git"
+  },
+  "keywords": [
+    "mvc",
+    "framework",
+    "controller",
+    "views",
+    "models",
+    "cli"
+  ],
+  "author": "Philippe Assis <assis@philippeassis.com> (philippeassis.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cupcoffeejs/cupcoffee/issues"
+  },
+  "homepage": "https://github.com/cupcoffeejs/cupcoffee#readme",
+  "dependencies": {
+    "inquirer": "^1.0.3",
+    "mkdirp": "^0.5.1",
+    "node-flags": "^0.1.9",
+    "optimist": "^0.6.1",
+    "validator": "^5.4.0"
+  }
+}
