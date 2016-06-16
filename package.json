@@ -1,11 +1,13 @@
 {
   "name": "cupcoffee",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Micro MVC framework for Node.js",
   "main": "index.js",
+  "bin": {
+    "cupcoffee": "index.js"
+  },
   "scripts": {
-    "start": "node .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ."
   },
   "repository": {
     "type": "git",

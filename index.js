@@ -8,7 +8,8 @@ const opt = require('optimist').argv,
     merge = require('utils-merge'),
     inquirer = require('inquirer');
 
-var cache = {};
+var cache = {},
+    pack;
 var appDefaultDir = ['app/controllers', 'app/models', 'app/views', 'app/routes', 'public']
 
 
@@ -63,7 +64,18 @@ var create = () => {
 
                 if (execSync(npm)) {
                     console.log(' ......................... Download completed');
-                    console.log("Good luck!");
+                    console.log('Setting package.json...')
+
+                    pack.scripts = {
+                        "start": "node ."
+                    }
+
+                    fs.writeFile('./package.js', JSON.stringify(pack, null, 2), (err) => {
+                        if (err) throw err;
+                        else {
+                            console.log("Good luck!");
+                        }
+                    })
                 }
             });
         }
@@ -72,13 +84,19 @@ var create = () => {
 
 }
 
-
-var cliCreate = (callback) => {
+var createWithCli = (callback) => {
     inquirer.prompt([
         {
             type: 'input',
             name: 'name',
             message: 'What is the application name?',
+            default: () => {
+                if(pack.name){
+                    return pack.name;
+                }
+
+                return 'asd';
+            },
             validate: function (value) {
 
                 return value ? true : 'You will need a name to continue';
@@ -198,14 +216,13 @@ var cliCreate = (callback) => {
 }
 
 var createWithFlags = () => {
-
-    if (!opt['_'][1] && !opt.name) {
+    if (!opt['_'][1] && !opt.name && !pack.name) {
         console.log('ERROR: You need to define a name for your application')
         return false;
     }
 
     cache.app = {};
-    cache.app.name = opt.name ? opt.name : opt['_'][1];
+    cache.app.name = opt.name ? opt.name : (opt['_'][1]) ? opt['_'][1] : pack.name;
     cache.app.env = (opt.env) ? opt.env : 'production';
     cache.app[cache.app.env] = {};
     cache.app[cache.app.env].port = (opt.port) ? opt.port : '80';
@@ -213,7 +230,7 @@ var createWithFlags = () => {
     if (opt.database) {
         cache.app[cache.app.env].database = opt.database;
     }
-    
+
     if (opt.db) {
         cache.app[cache.app.env].database = opt.db;
     }
@@ -225,6 +242,8 @@ switch (opt['_'][0]) {
     case 'create':
         try {
             if (fs.statSync('package.json').isFile()) {
+                pack = require('./package.json');
+                console.log(pack)
                 if (createWithFlags()) {
                     create()
                 }
@@ -268,7 +287,8 @@ switch (opt['_'][0]) {
                 case 'create':
                     try {
                         if (fs.statSync('package.json').isFile()) {
-                            cliCreate(()=> {
+                            pack = require('./package.json');
+                            createWithCli(()=> {
                                 create();
                             })
                         }
@@ -280,7 +300,7 @@ switch (opt['_'][0]) {
 
                     break;
                 case 'config':
-                    cliCreate(()=> {
+                    createWithCli(()=> {
                         config();
                     })
                     break;
