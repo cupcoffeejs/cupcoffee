@@ -1,6 +1,6 @@
 {
   "name": "cupcoffee",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Micro MVC framework for Node.js",
   "main": "cli.js",
   "preferGlobal": "true",
