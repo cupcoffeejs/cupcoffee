@@ -1,6 +1,6 @@
 {
   "name": "cupcoffee",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Micro MVC framework for Node.js",
   "main": "cli.js",
   "preferGlobal": "true",
@@ -33,6 +33,7 @@
     "mkdirp": "^0.5.1",
     "node-flags": "^0.1.9",
     "optimist": "^0.6.1",
+    "utils-merge": "^1.0.0",
     "validator": "^5.4.0"
   }
 }

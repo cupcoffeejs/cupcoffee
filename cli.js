@@ -1,3 +1,5 @@
+#! /usr/bin/node
+
 const opt = require('optimist').argv,
     fs = require('fs'),
     path = require('path'),
