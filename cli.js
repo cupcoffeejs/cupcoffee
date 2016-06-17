@@ -92,7 +92,7 @@ var create = () => {
 
 var packageJson = (callback, error) => {
     try {
-        pack = require('./package.json');
+        pack = JSON.parse(fs.readFileSync('./package.json').toString());
         callback();
     }
     catch (e) {
@@ -278,7 +278,7 @@ switch (opt['_'][0]) {
     default:
 
         if(opt.v || opt.version){
-            console.log(require(__dirname+'/package.json')['version']);
+            console.log(require('./package.json')['version']);
             return
         }
 
