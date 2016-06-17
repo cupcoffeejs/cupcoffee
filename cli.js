@@ -90,6 +90,22 @@ var create = () => {
 
 }
 
+var packageJson = (callback, error) => {
+    try {
+        pack = require('./package.json');
+        callback();
+    }
+    catch (e) {
+        if (error) {
+            console.error(' ERROR: package.json not found.\n Before you run this application you need to set the package.json. To make it, run \'npm init\'.')
+            return;
+        }
+
+        callback();
+    }
+
+}
+
 var createWithCli = (callback) => {
     inquirer.prompt([
         {
@@ -246,25 +262,18 @@ var createWithFlags = () => {
 
 switch (opt['_'][0]) {
     case 'create':
-        try {
-            if (fs.statSync('package.json').isFile()) {
-                pack = require('./package.json');
-                if (createWithFlags()) {
-                    create()
-                }
+        packageJson(() => {
+            if (createWithFlags()) {
+                create()
             }
-        }
-        catch (e) {
-            console.error(' ERROR: package.json not found.\n Before you run this application you need to set the package.json. To make it, run \'npm init\'.')
-            return;
-        }
-
-
+        }, true)
         break;
     case 'config':
-        if (createWithFlags()) {
-            config();
-        }
+        packageJson(() => {
+            if (createWithFlags()) {
+                config();
+            }
+        })
         break;
     default:
         inquirer.prompt([
@@ -290,31 +299,28 @@ switch (opt['_'][0]) {
         ]).then(function (answers) {
             switch (answers.menu) {
                 case 'create':
-                    try {
-                        if (fs.statSync('package.json').isFile()) {
-                            pack = require('./package.json');
-                            createWithCli(()=> {
-                                create();
-                            })
-                        }
-                    }
-                    catch (e) {
-                        console.error(' ERROR: package.json not found.\n Before you run this application you need to set the package.json. To make it, run \'npm init\'.')
-                        return;
-                    }
+                    packageJson(() => {
+                        createWithCli(() => {
+                            create()
+                        })
+                    }, true)
 
                     break;
                 case 'config':
-                    createWithCli(()=> {
-                        config();
+                    packageJson(() => {
+                        createWithCli(() => {
+                            config()
+                        })
                     })
+
                     break;
                 case 'exit':
                     console.log('Bye, bye...')
                     break;
             }
         });
-
         break;
 }
+
+
 
