@@ -32,7 +32,7 @@ var config = (callback) => {
 var create = () => {
     console.log('Creating index.js...');
 
-    fs.writeFile('./index.js', JSON.stringify("require('cupcoffe-mvc')().start();"), (err) => {
+    fs.writeFile('./index.js', "require('cupcoffee-mvc')().start();", (err) => {
         if (err) throw err;
         else {
             console.log('index.js ......................... OK!');
