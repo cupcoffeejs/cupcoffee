@@ -276,6 +276,12 @@ switch (opt['_'][0]) {
         })
         break;
     default:
+
+        if(opt.v || opt.version){
+            console.log(require(__dirname+'/package.json')['version']);
+            return
+        }
+
         inquirer.prompt([
             {
                 type: 'list',
