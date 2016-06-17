@@ -67,17 +67,21 @@ var create = () => {
                 if (execSync(npm)) {
                     console.log(' ......................... Download completed');
                     console.log('Setting package.json...')
-
-                    pack.scripts = {
-                        "start": "node ."
-                    }
-
-                    fs.writeFile('./package.json', JSON.stringify(pack, null, 2), (err) => {
-                        if (err) throw err;
-                        else {
-                            console.log("Good luck!");
+                    if (pack.name) {
+                        pack.scripts = {
+                            "start": "node ."
                         }
-                    })
+
+                        fs.writeFile('./package.json', JSON.stringify(pack, null, 2), (err) => {
+                            if (err) throw err;
+                            else {
+                                console.log("Good luck!");
+                            }
+                        })
+                    }
+                    else {
+                        console.log("Good luck!");
+                    }
                 }
             });
         }
@@ -93,11 +97,11 @@ var createWithCli = (callback) => {
             name: 'name',
             message: 'What is the application name?',
             default: () => {
-                if(pack.name){
+                if (pack && pack.name) {
                     return pack.name;
                 }
 
-                return 'asd';
+                return null;
             },
             validate: function (value) {
 
@@ -245,7 +249,6 @@ switch (opt['_'][0]) {
         try {
             if (fs.statSync('package.json').isFile()) {
                 pack = require('./package.json');
-                console.log(pack)
                 if (createWithFlags()) {
                     create()
                 }
