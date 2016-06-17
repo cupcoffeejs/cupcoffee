@@ -49,7 +49,7 @@ var create = () => {
 
                 var npm = 'npm i --save cupcoffee-mvc';
 
-                if (cache.app[cache.app.env].database.config.dialect) {
+                if (cache.app[cache.app.env].database) {
                     if (cache.app[cache.app.env].database.config.dialect == 'mysql') {
                         npm += ' mysql';
                     }
@@ -186,7 +186,6 @@ var createWithCli = (callback) => {
         cache.app.env = answers.env;
         cache.app[cache.app.env] = {};
         cache.app[cache.app.env].port = answers.port;
-        console.log(answers.database)
         if (answers.database) {
             cache.app[cache.app.env].database = {};
             cache.app[cache.app.env].database.config = {};
