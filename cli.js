@@ -72,7 +72,7 @@ var create = () => {
                         "start": "node ."
                     }
 
-                    fs.writeFile('./package.js', JSON.stringify(pack, null, 2), (err) => {
+                    fs.writeFile('./package.json', JSON.stringify(pack, null, 2), (err) => {
                         if (err) throw err;
                         else {
                             console.log("Good luck!");
