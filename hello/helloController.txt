@@ -1,0 +1,24 @@
+"use strict";
+
+module.exports = () => {
+
+    this.index = () => {
+        var message = "",
+            date = new Date()
+
+        if (date.getHours() >= 5 && date.getHours() <= 11) {
+            message = "Good morning"
+        }
+        else if (date.getHours() >= 12 && date.getHours() <= 17) {
+            message = "Good afternoon"
+        }
+        else {
+            message = "Good night"
+        }
+
+        this.view.render({'message' :  message})
+    }
+
+
+    return this;
+};

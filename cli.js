@@ -12,7 +12,14 @@ const opt = require('optimist').argv,
 
 var cache = {},
     pack;
-var appDefaultDir = ['app/controllers', 'app/models', 'app/views', 'app/routes', 'public']
+var appDefaultDir = ['app/controllers', 'app/models', 'app/views', 'app/routes', 'public', 'app/views/erros', 'app/views/hello']
+
+
+var hello = {
+    'views/erros/erros.pug': 'errosView.txt',
+    'controllers/helloController.js': 'helloController.txt',
+    'views/hello/index.pug': 'helloView.txt'
+}
 
 
 var config = (callback) => {
@@ -41,9 +48,19 @@ var create = () => {
                 console.log('Creating default directories...');
 
                 appDefaultDir.forEach((dir) => {
-                    console.log(dir + ' ......................... OK!');
+                    console.log('New dir: ' + dir + ' ......................... OK!');
                     mkdirp.sync(dir)
                 })
+
+                console.log('Creating default files...');
+                for (var key in hello) {
+                    var dir = 'app/' + key,
+                        content = fs.readFileSync('hello/' + hello[key]).toString();
+
+                    fs.writeFileSync(dir, content);
+
+                    console.log('New file: '+dir + ' ......................... OK')
+                }
 
                 console.log('Downloading CupCoffee MVC modules...');
 
@@ -276,7 +293,7 @@ switch (opt['_'][0]) {
         break;
     default:
 
-        if(opt.v || opt.version){
+        if (opt.v || opt.version) {
             console.log(require('./package.json')['version']);
             return
         }
