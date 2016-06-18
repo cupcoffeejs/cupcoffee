@@ -55,7 +55,7 @@ var create = () => {
                 console.log('Creating default files...');
                 for (var key in hello) {
                     var dir = 'app/' + key,
-                        content = fs.readFileSync('hello/' + hello[key]).toString();
+                        content = fs.readFileSync(__dirname+'/hello/' + hello[key]).toString();
 
                     fs.writeFileSync(dir, content);
 
