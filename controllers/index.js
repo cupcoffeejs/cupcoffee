@@ -7,7 +7,8 @@
 var fs = require("fs"),
     path = require("path"),
     count = require("object-count"),
-    merge = require("utils-merge");
+    merge = require("utils-merge"),
+    paths = require("../configs/paths.js");
 
 
 module.exports = class {
@@ -50,7 +51,7 @@ module.exports = class {
     }
 
     exists(controller, action = false) {
-
+console.log([controller, action])
         if (action) {
             if (this.files[controller]) {
                 var control = require(path.join(this.appControllerPath, controller + 'Controller.js'))({});
@@ -178,11 +179,10 @@ module.exports = class {
             return this.invoke('errors', 'error' + error, [error, message], true)
         }
         else if (this.exists('errors', 'index')) {
-            console.log('errors')
             return this.invoke('errors', 'index', [error, message], true)
         }
         else {
-            return this.invoke(controller, 'index', [error, message], true)
+            return this.view.error(error, message)
         }
     }
 

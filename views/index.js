@@ -10,7 +10,7 @@ var pug = require('pug'),
 
 module.exports = class {
 
-    constructor({request, response, controllerName, action, config, paths}) {
+    constructor({request, response, controllerName = '', action = '', config, paths}) {
         this.request = request;
         this.response = response;
         this.controllerName = controllerName;
