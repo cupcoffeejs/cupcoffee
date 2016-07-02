@@ -1,4 +1,0 @@
-if title
-    h1= title
-if message
-    h2= message

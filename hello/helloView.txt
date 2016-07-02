@@ -1,7 +1,0 @@
-doctype html
-html(lang="en")
-    head
-        title Hello!
-
-    body
-        h2= message

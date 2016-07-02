@@ -1,39 +1,31 @@
 {
   "name": "cupcoffee",
-  "version": "0.1.5",
+  "version": "0.5.0",
   "description": "Micro MVC framework for Node.js",
-  "main": "cli.js",
-  "preferGlobal": "true",
-  "bin": {
-    "cupcoffee": "./cli.js"
-  },
+  "main": "index.js",
   "scripts": {
-    "start": "node ."
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cupcoffeejs/cupcoffee.git"
+    "url": "https://github.com/cupcoffeejs/cupcoffee-mvc"
   },
   "keywords": [
     "mvc",
     "framework",
     "controller",
-    "views",
-    "models",
-    "cli"
+    "modal",
+    "view"
   ],
-  "author": "Philippe Assis <assis@philippeassis.com> (philippeassis.com)",
+  "author": "Philippe Assis <assis@sophiware.com> (sophiware.com)",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/cupcoffeejs/cupcoffee/issues"
-  },
-  "homepage": "https://github.com/cupcoffeejs/cupcoffee#readme",
   "dependencies": {
-    "inquirer": "^1.0.3",
-    "mkdirp": "^0.5.1",
-    "node-flags": "^0.1.9",
-    "optimist": "^0.6.1",
-    "utils-merge": "^1.0.0",
-    "validator": "^5.4.0"
+    "body-parser": "^1.15.2",
+    "express": "^4.13.4",
+    "express-fileupload": "0.0.5",
+    "laravel-elixir": "^6.0.0-4",
+    "object-count": "0.0.1",
+    "pug": "^2.0.0-beta3",
+    "sequelize": "^3.23.3"
   }
 }
