@@ -9,7 +9,7 @@ var path = require('path'),
 
 module.exports = (root) => {
     this.paths = require('./configs/paths')(root),
-    this.config = require(path.join(this.paths.root, 'cupcoffee.json'));
+        this.config = require(path.join(this.paths.root, 'cupcoffee.json'));
 
     this.env = (process.env.NODE_CUPCOFFEE_ENV) ?
         process.env.NODE_CUPCOFFEE_ENV : (process.env.NODE_ENV) ?
@@ -49,7 +49,7 @@ module.exports = (root) => {
         if (this.config.multiple) {
             var config = this.config.multiple;
 
-            if(config[this.env]){
+            if (config[this.env]) {
                 config = config[this.env];
             }
 
@@ -57,11 +57,20 @@ module.exports = (root) => {
             server.listen(config.port);
 
             config.sites.forEach((site) => {
-                if(site[this.env]){
+                if (site[this.env]) {
                     site = site[this.env];
                 }
 
-                var app = require(path.join(path.resolve(site.path), 'index.js'))(site, config);
+                try {
+                    var app = require(path.resolve(site.path))(site, config);
+                }
+                catch (err){
+                    var app = express()
+                    app.use(bodyParser.urlencoded({extended: false}));
+                    app.use(bodyParser.json());
+                    app.use(fileUpload());
+                    app.use(express.static(site.path));
+                }
 
                 if (!Array.isArray(site.domain)) {
                     site.domain = [site.domain];
@@ -71,6 +80,7 @@ module.exports = (root) => {
                     evh.register(site.domain[key], app);
                     console.log(`Site ${site.name}, domain ${site.domain[key]}, registed in port ${config.port}`)
                 }
+
             })
         }
     }
