@@ -7,16 +7,36 @@ var path = require('path'),
     express = require('express'),
     server = express();
 
-
 module.exports = (root) => {
-    var paths = require('./configs/paths')(root),
-        config = require(path.join(paths.root, 'cupcoffee.json'));
+    this.paths = require('./configs/paths')(root),
+    this.config = require(path.join(this.paths.root, 'cupcoffee.json'));
 
-    if (config.app) {
-        var Routes = module.exports.routes = new (require('./routes'))(config.app[config.app.env], paths);
-    }
+    this.env = (process.env.NODE_CUPCOFFEE_ENV) ?
+        process.env.NODE_CUPCOFFEE_ENV : (process.env.NODE_ENV) ?
+        process.env.NODE_ENV : 'development';
 
     this.app = () => {
+        if (this.config.app) {
+            if (!this.config.app[this.env]) {
+                if (this.config.app.env) {
+                    if (this.config.app[config.app.env]) {
+                        this.env = this.config.app.env;
+                    }
+                } else if (this.config.app['development']) {
+                    this.env = 'development';
+                }
+                else if (this.config.app['production']) {
+                    this.env = 'production';
+                }
+                else {
+                    console.error("CUPCOFFEE: NODE_CUPCOFFEE_ENV or NODE_ENV need to be declared.")
+                    return 0;
+                }
+            }
+
+            var Routes = module.exports.routes = new (require('./routes'))(this.config.app[this.env], this.paths);
+        }
+
         var app = express()
         app.use(bodyParser.urlencoded({extended: false}));
         app.use(bodyParser.json());
@@ -26,11 +46,21 @@ module.exports = (root) => {
     }
 
     this.multiple = () => {
-        if (config.multiple) {
-            server.use(evh.vhost(server.enabled('trust proxy')));
-            server.listen(config.multiple.port);
+        if (this.config.multiple) {
+            var config = this.config.multiple;
 
-            config.multiple.sites.forEach((site) => {
+            if(config[this.env]){
+                config = config[this.env];
+            }
+
+            server.use(evh.vhost(server.enabled('trust proxy')));
+            server.listen(config.port);
+
+            config.sites.forEach((site) => {
+                if(site[this.env]){
+                    site = site[this.env];
+                }
+
                 var app = require(path.join(path.resolve(site.path), 'index.js'))(site, config);
 
                 if (!Array.isArray(site.domain)) {
@@ -39,15 +69,15 @@ module.exports = (root) => {
 
                 for (var key in site.domain) {
                     evh.register(site.domain[key], app);
-                    console.log(`Site ${site.name}, domain ${site.domain[key]}, registed in port ${config.multiple.port}`)
+                    console.log(`Site ${site.name}, domain ${site.domain[key]}, registed in port ${config.port}`)
                 }
             })
         }
     }
 
     this.start = () => {
-        this.app().listen(config.app[config.app.env].port, config.app[config.app.env].hostname, function () {
-            console.log(`Server running at http://${config.app[config.app.env].hostname}:${config.app[config.app.env].port}/`);
+        this.app().listen(this.config.app[env].port, this.config.app[env].hostname, function () {
+            console.log(`Server running at http://${this.config.app[env].hostname}:${this.config.app[env].port}/`);
         });
     };
 
