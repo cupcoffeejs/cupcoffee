@@ -1,6 +1,6 @@
 {
   "name": "cupcoffee",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Micro MVC framework for Node.js",
   "main": "index.js",
   "scripts": {
@@ -23,9 +23,15 @@
     "body-parser": "^1.15.2",
     "express": "^4.13.4",
     "express-fileupload": "0.0.5",
+    "express-vhost": "^0.2.0",
+    "fs-exists-sync": "^0.1.0",
     "laravel-elixir": "^6.0.0-4",
+    "log": "^1.4.0",
     "object-count": "0.0.1",
     "pug": "^2.0.0-beta3",
-    "sequelize": "^3.23.3"
+    "replaceall": "^0.1.6",
+    "sequelize": "^3.23.3",
+    "validator": "^5.4.0",
+    "vhost": "^3.0.2"
   }
 }

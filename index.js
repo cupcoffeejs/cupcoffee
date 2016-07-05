@@ -1,42 +1,55 @@
 "use strict";
 
-var paths = require('./configs/paths'),
-    path = require('path'),
-    config = require(path.join(paths.root, 'cupcoffee.json')),
+var path = require('path'),
     bodyParser = require('body-parser'),
     fileUpload = require('express-fileupload'),
+    evh = require('express-vhost'),
     express = require('express'),
-    app = express();
+    server = express();
 
 
-var Routes = module.exports.routes = new (require('./routes'))(config.app[config.app.env], paths);
+module.exports = (root) => {
+    var paths = require('./configs/paths')(root),
+        config = require(path.join(paths.root, 'cupcoffee.json'));
 
-module.exports.config = config;
+    if (config.app) {
+        var Routes = module.exports.routes = new (require('./routes'))(config.app[config.app.env], paths);
+    }
 
-module.exports.paths = paths;
+    this.app = () => {
+        var app = express()
+        app.use(bodyParser.urlencoded({extended: false}));
+        app.use(bodyParser.json());
+        app.use(fileUpload());
+        app.use(Routes.auto());
+        return app
+    }
 
-module.exports.controller = Routes.controller;
+    this.multiple = () => {
+        if (config.multiple) {
+            server.use(evh.vhost(server.enabled('trust proxy')));
+            server.listen(config.multiple.port);
 
-module.exports.view = Routes.controller.view;
+            config.multiple.sites.forEach((site) => {
+                var app = require(path.join(path.resolve(site.path), 'index.js'))(site, config);
 
-module.exports.model = Routes.controller.model;
+                if (!Array.isArray(site.domain)) {
+                    site.domain = [site.domain];
+                }
 
-module.exports.start = () => {
-    var appConfig = config.app[config.app.env];
+                for (var key in site.domain) {
+                    evh.register(site.domain[key], app);
+                    console.log(`Site ${site.name}, domain ${site.domain[key]}, registed in port ${config.multiple.port}`)
+                }
+            })
+        }
+    }
 
-    app.use(bodyParser.urlencoded({ extended: false }));
-    app.use(bodyParser.json());
-    app.use(fileUpload());
+    this.start = () => {
+        this.app().listen(config.app[config.app.env].port, config.app[config.app.env].hostname, function () {
+            console.log(`Server running at http://${config.app[config.app.env].hostname}:${config.app[config.app.env].port}/`);
+        });
+    };
 
-    app.use('/', Routes.auto());
-
-    var port = appConfig.port,
-        hostname = appConfig.hostname;
-
-    app.listen(port, hostname, function () {
-        console.log(`Server running at http://${hostname}:${port}/`);
-    });
-
-};
-
-
+    return this;
+}

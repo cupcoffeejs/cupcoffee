@@ -8,8 +8,7 @@ var fs = require("fs"),
     path = require("path"),
     count = require("object-count"),
     merge = require("utils-merge"),
-    paths = require("../configs/paths.js");
-
+    exists = require('fs-exists-sync');
 
 module.exports = class {
 
@@ -17,7 +16,7 @@ module.exports = class {
         this.files = {};
         this.config = config;
         this.paths = paths;
-        this.appControllerPath = path.join(__dirname, '..', '..', '..', 'app', 'controllers');
+        this.appControllerPath = path.join(paths.app.app, 'controllers');
         this.view = new (require('../views'))({config, paths});
         this.model = (config.database) ? new (require('../models'))(config.database) : null;
     }
@@ -25,6 +24,7 @@ module.exports = class {
     find() {
         this.view.request = this.request;
         this.view.response = this.response;
+
         var url = this.request.params[0].split('/');
 
         if (url[1]) {
@@ -51,11 +51,18 @@ module.exports = class {
     }
 
     exists(controller, action = false) {
-console.log([controller, action])
         if (action) {
             if (this.files[controller]) {
                 var control = require(path.join(this.appControllerPath, controller + 'Controller.js'))({});
-                return (typeof control[action] == 'function')
+                if (typeof control[action] == 'function') {
+                    return true
+                }
+                else if (this.request) {
+                    return (typeof control[this.request.method.toLocaleLowerCase() + '_' + action] == 'function');
+                }
+                else {
+                    return false
+                }
             }
 
             return false;
@@ -149,16 +156,17 @@ console.log([controller, action])
 
     load() {
         var files = [];
+        if (exists(this.appControllerPath)) {
+            fs.readdirSync(this.appControllerPath)
+                .filter(function (file) {
+                    return (file.indexOf(".") !== 0) && (file !== "index.js") && (file.indexOf("Controller") > -1);
+                })
+                .forEach(function (file) {
+                    files[file.replace('Controller.js', '')] = file;
+                });
 
-        fs.readdirSync(this.appControllerPath)
-            .filter(function (file) {
-                return (file.indexOf(".") !== 0) && (file !== "index.js") && (file.indexOf("Controller") > -1);
-            })
-            .forEach(function (file) {
-                files[file.replace('Controller.js', '')] = file;
-            });
-
-        this.files = files;
+            this.files = files;
+        }
 
         return this;
     }

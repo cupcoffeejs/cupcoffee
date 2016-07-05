@@ -116,9 +116,21 @@ module.exports = class {
         return this;
     }
 
-    setConfig({response, config, paths}) {
+    http(request, response) {
+        this.response = response;
+
+        this.request = request;
+
+        return this;
+    }
+
+    setConfig({response, request, config, paths}) {
         if (response) {
             this.response = response;
+        }
+
+        if (response) {
+            this.request = request;
         }
 
         if (paths) {
