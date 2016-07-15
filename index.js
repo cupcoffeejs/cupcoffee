@@ -86,8 +86,11 @@ module.exports = (root) => {
     }
 
     this.start = () => {
-        this.app().listen(this.config.app[env].port, this.config.app[env].hostname, function () {
-            console.log(`Server running at http://${this.config.app[env].hostname}:${this.config.app[env].port}/`);
+        var port = this.config.app[this.env].port,
+            hostname = this.config.app[this.env].hostname;
+
+        this.app().listen(port, hostname, function () {
+            console.log(`Server running at http://${hostname}:${port}/`);
         });
     };
 

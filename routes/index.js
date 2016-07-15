@@ -31,7 +31,7 @@ module.exports = class {
         return files;
     }
 
-    auto() {
+    auto(express) {
         var express = require('express'),
             router = express.Router();
 
