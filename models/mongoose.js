@@ -3,14 +3,17 @@
 var fs = require("fs"),
     path = require("path"),
     exists = require('fs-exists-sync'),
-    mongoose = require('mongoose');
+    mongoose = require('mongoose'),
+    middleware = require('../middleware/index.js');
 
 module.exports = class {
 
-    constructor(config) {
+    constructor(config, paths) {
         if (!config) {
             return null;
         }
+
+        this.middleware = new middleware(paths);
 
         return this.connect(config);
     }
@@ -34,11 +37,10 @@ module.exports = class {
                 .forEach((file) => {
                     var model = require(path.join(paths.app.models, file))(mongoose);
                     if (typeof model == "object") {
-                        if (model.name && model.schema) {
-                            models[model.name] = mongoose.model(model.name, model.schema);
-                        }
-                        else if (model.name) {
-                            models[model.name] = mongoose.model(model.name, model);
+                        var schema = (model.schema) ? model.schema : model;
+
+                        if (model.name) {
+                            models[model.name] = mongoose.model(model.name, this.middleware.event("beforeModelMongoDB", model));
                         }
                     }
                 });

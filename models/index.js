@@ -1,6 +1,6 @@
 "use strict"
 
-module.exports = (config) => {
+module.exports = (config, paths) => {
 
     var model;
 
@@ -9,7 +9,7 @@ module.exports = (config) => {
          * Mongoosejs
          * */
         if (config.database.type && config.database.type == "mongodb") {
-            model = new (require('./mongoose.js'))(config.database);
+            model = new (require('./mongoose.js'))(config.database, paths);
         }
         /**
          * Sequelizejs
@@ -34,7 +34,7 @@ module.exports = (config) => {
                 }
             }
 
-            model = new (require('./sequelize.js'))(config.database);
+            model = new (require('./sequelize.js'))(config.database, paths);
         }
     }
 

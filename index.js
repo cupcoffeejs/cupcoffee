@@ -5,15 +5,19 @@ var path = require('path'),
     fileUpload = require('express-fileupload'),
     evh = require('express-vhost'),
     express = require('express'),
+    exists = require('fs-exists-sync'),
+    middleware = require('./middleware/index.js'),
     server = express();
 
 module.exports = (root) => {
-    this.paths = require('./configs/paths')(root),
-        this.config = require(path.join(this.paths.root, 'cupcoffee.json'));
+    this.paths = require('./configs/paths')(root);
+    this.config = require(path.join(this.paths.root, 'cupcoffee.json'));
 
     this.env = (process.env.NODE_CUPCOFFEE_ENV) ?
         process.env.NODE_CUPCOFFEE_ENV : (process.env.NODE_ENV) ?
         process.env.NODE_ENV : 'development';
+
+    this.middleware = new middleware(this.paths)
 
     this.app = () => {
         if (this.config.app) {
@@ -37,12 +41,34 @@ module.exports = (root) => {
             var Routes = module.exports.routes = new (require('./routes'))(this.config.app[this.env], this.paths);
         }
 
-        var app = express()
-        app.use(bodyParser.urlencoded({extended: false}));
-        app.use(bodyParser.json());
-        app.use(fileUpload());
-        app.use(Routes.auto());
-        return app
+        if (this.middleware.eventExist('init_app')) {
+            return this.middleware.event('init_app', {
+                paths: this.paths, config: this.config, env: this.env, Routes
+            })
+        }
+        else {
+            var app = express()
+
+            app.use(bodyParser.urlencoded({extended: false}));
+            app.use(bodyParser.json());
+            app.use(fileUpload());
+
+            if (this.middleware.eventExist('app')) {
+                app.use(this.middleware.event('appUse', {
+                    paths: this.paths, config: this.config, env: this.env, Routes
+                }))
+            }
+
+            var publicPath = this.config.app.publicPath || this.paths.public.public;
+
+            if (exists(publicPath)) {
+                app.use(express.static(publicPath));
+            }
+
+            app.use(Routes.auto());
+
+            return app
+        }
     }
 
     this.multiple = () => {
@@ -64,7 +90,7 @@ module.exports = (root) => {
                 try {
                     var app = require(path.resolve(site.path))(site, config);
                 }
-                catch (err){
+                catch (err) {
                     var app = express()
                     app.use(bodyParser.urlencoded({extended: false}));
                     app.use(bodyParser.json());

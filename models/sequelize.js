@@ -7,14 +7,17 @@
 var fs = require("fs"),
     path = require("path"),
     exists = require('fs-exists-sync'),
-    Sequelize = require("sequelize");
+    Sequelize = require("sequelize"),
+    middleware = require('./middleware/index.js');
 
 module.exports = class {
 
-    constructor(config) {
+    constructor(config, paths) {
         if (!config) {
             return null;
         }
+
+        this.middleware = new middleware(paths);
 
         return this.connect(config);
     }
@@ -23,7 +26,6 @@ module.exports = class {
         if (exists(paths.app.models)) {
             var sequelize = new Sequelize(config.name, config.username, config.password, config.config),
                 db = {};
-
 
             fs.readdirSync(paths.app.models)
                 .filter((file) => {

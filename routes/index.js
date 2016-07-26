@@ -7,14 +7,14 @@
 var fs = require('fs'),
     path = require('path'),
     exists = require('fs-exists-sync'),
-    models = require('../models')
+    models = require('../models');
 
 module.exports = class {
 
     constructor(config, paths) {
         this.config = config;
         this.paths = paths;
-        this.model = models(config)
+        this.model = models(config, paths)
         this.view = new (require('../views'))({config, paths});
         this.controller = new (require('../controllers'))(config, paths);
 
@@ -34,6 +34,7 @@ module.exports = class {
                     files.push(path.join(paths.app.routes, file));
                 });
         }
+
         return files;
     }
 

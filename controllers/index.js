@@ -8,7 +8,8 @@ var fs = require("fs"),
     path = require("path"),
     count = require("object-count"),
     merge = require("utils-merge"),
-    exists = require('fs-exists-sync');
+    exists = require('fs-exists-sync'),
+    middleware = require('../middleware/index.js');
 
 module.exports = class {
 
@@ -17,11 +18,10 @@ module.exports = class {
         this.config = config;
         this.paths = paths;
         this.appControllerPath = path.join(paths.app.app, 'controllers');
+        this.middleware = new middleware(paths);
     }
 
     find() {
-
-
         var url = this.request.params[0].split('/');
 
         if (url[1]) {
@@ -106,7 +106,30 @@ module.exports = class {
             return this.error(controller, action, 404);
         }
 
+        app = this.middleware.event('afterLoadController', app)
+
+        if(!app){
+            return;
+        }
+
+        var defaultController;
+
+        if(exists(path.join(this.appControllerPath, 'index.js'))){
+            defaultController = require(path.join(this.appControllerPath, 'index.js'))(app);
+            app.index = defaultController;
+        }
+        else{
+            app.index = null;
+        }
+
+
         var control = require(path.join(this.appControllerPath, controller + 'Controller.js'))(app);
+
+        if(control.init){
+            if(!control.init()){
+                return
+            }
+        }
 
         if (typeof control[methodAction] == 'function') {
             action = methodAction;
