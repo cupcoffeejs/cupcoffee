@@ -6,14 +6,20 @@
 
 var fs = require('fs'),
     path = require('path'),
-    exists = require('fs-exists-sync');
+    exists = require('fs-exists-sync'),
+    models = require('../models')
 
 module.exports = class {
 
     constructor(config, paths) {
         this.config = config;
         this.paths = paths;
+        this.model = models(config)
+        this.view = new (require('../views'))({config, paths});
         this.controller = new (require('../controllers'))(config, paths);
+
+        this.controller.view = this.view;
+        this.controller.model = this.model;
     }
 
     loadFiles() {
@@ -43,8 +49,8 @@ module.exports = class {
             var appRouter = require(files[key])({
                 'router': express.Router(),
                 'controller': this.controller,
-                'model': this.controller.model,
-                'view': this.controller.view,
+                'model': this.model,
+                'view': this.view,
                 'paths': this.paths,
                 'config': this.config
             });

@@ -1,50 +1,42 @@
-/**
- * models/index.js
- * */
+"use strict"
 
-"use strict";
+module.exports = (config) => {
 
-var fs = require("fs"),
-    path = require("path"),
-    Sequelize = require("sequelize"),
-    exists = require('fs-exists-sync');
+    var model;
 
-module.exports = class {
-
-    constructor(config) {
-        if (!config) {
-            return null;
+    if (config.database) {
+        /**
+         * Mongoosejs
+         * */
+        if (config.database.type && config.database.type == "mongodb") {
+            model = new (require('./mongoose.js'))(config.database);
         }
+        /**
+         * Sequelizejs
+         * */
+        else {
+            if (config.database.options) {
+                config.database.config = config.database.options;
+            }
 
-        return this.connect(config);
-    }
-
-    connect(config) {
-        if (exists(paths.app.models)) {
-            var sequelize = new Sequelize(config.schema, config.username, config.password, config.config),
-                db = {};
-
-
-            fs.readdirSync(paths.app.models)
-                .filter((file) => {
-                    return (file.indexOf(".") !== 0) && (file !== "index.js");
-                })
-                .forEach((file) => {
-                    var model = sequelize.import(path.join(paths.app.models, file));
-                    db[model.name] = model;
-                });
-
-            Object.keys(db).forEach((modelName) => {
-                if ("associate" in db[modelName]) {
-                    db[modelName].associate(db);
+            if (!config.database.config) {
+                config.database.config = {};
+                config.database.config.dialect = config.database.type;
+                config.database.config.host = config.database.host || 'localhost';
+            }
+            else {
+                if (config.database.config.dialect) {
+                    config.database.type = config.database.config.dialect;
                 }
-            });
 
-            db.sequelize = sequelize;
+                if (config.database.config.host) {
+                    config.database.host = config.database.config.host;
+                }
+            }
 
-            return db;
+            model = new (require('./sequelize.js'))(config.database);
         }
-        return null;
     }
 
+    return model;
 }

@@ -1,6 +1,6 @@
 {
   "name": "cupcoffee",
-  "version": "0.5.7",
+  "version": "0.6.0",
   "description": "Micro MVC framework for Node.js",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,17 @@
     "framework",
     "controller",
     "modal",
-    "view"
+    "view",
+    "routes",
+    "sequelize",
+    "mongoose",
+    "mongodb",
+    "mysql",
+    "mssql",
+    "sqlite",
+    "postgre",
+    "jade",
+    "pug"
   ],
   "author": "Philippe Assis <assis@sophiware.com> (sophiware.com)",
   "license": "ISC",
@@ -25,12 +35,10 @@
     "express-fileupload": "0.0.5",
     "express-vhost": "^0.2.0",
     "fs-exists-sync": "^0.1.0",
-    "laravel-elixir": "^6.0.0-4",
     "log": "^1.4.0",
     "object-count": "0.0.1",
     "pug": "^2.0.0-beta3",
     "replaceall": "^0.1.6",
-    "sequelize": "^3.23.3",
     "validator": "^5.4.0",
     "vhost": "^3.0.2"
   }

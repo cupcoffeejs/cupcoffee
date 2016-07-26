@@ -17,13 +17,10 @@ module.exports = class {
         this.config = config;
         this.paths = paths;
         this.appControllerPath = path.join(paths.app.app, 'controllers');
-        this.view = new (require('../views'))({config, paths});
-        this.model = (config.database) ? new (require('../models'))(config.database) : null;
     }
 
     find() {
-        this.view.request = this.request;
-        this.view.response = this.response;
+
 
         var url = this.request.params[0].split('/');
 
@@ -72,8 +69,6 @@ module.exports = class {
     }
 
     invoke(controller, action, params, scaffold) {
-        var views = this.view.controller(controller, action);
-
         if (!params) {
             if (this.request.params[0]) {
                 params = this.request.params[0].split('/')
@@ -82,14 +77,19 @@ module.exports = class {
 
         var app = {
             controller, action, params,
-            app: {
-                controller, action, params
-            },
-            view: views,
-            model: this.model,
+            model: null,
+            view: null,
             request: null,
             response: null
         };
+
+        if (this.view) {
+            app.view = this.view.controller(controller, action);
+        }
+
+        if (this.model) {
+            app.model = this.model;
+        }
 
         if (this.request) {
             app.request = this.request;
@@ -150,6 +150,8 @@ module.exports = class {
     http(request, response) {
         this.request = request;
         this.response = response;
+        this.view.request = request
+        this.view.response = response
         this.view.setConfig({request, response});
         return this;
     }
