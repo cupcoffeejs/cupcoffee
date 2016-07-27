@@ -6,6 +6,7 @@ var path = require('path'),
     evh = require('express-vhost'),
     express = require('express'),
     exists = require('fs-exists-sync'),
+    events = require('./events/index.js'),
     middleware = require('./middleware/index.js'),
     server = express();
 
@@ -17,6 +18,7 @@ module.exports = (root) => {
         process.env.NODE_CUPCOFFEE_ENV : (process.env.NODE_ENV) ?
         process.env.NODE_ENV : 'development';
 
+    this.events = new events(this.paths)
     this.middleware = new middleware(this.paths)
 
     this.app = () => {
@@ -41,9 +43,9 @@ module.exports = (root) => {
             var Routes = module.exports.routes = new (require('./routes'))(this.config.app[this.env], this.paths);
         }
 
-        if (this.middleware.eventExist('init_app')) {
-            return this.middleware.event('init_app', {
-                paths: this.paths, config: this.config, env: this.env, Routes
+        if (this.events.exists('createApp')) {
+            return this.exists.emit('createApp', {
+                paths: this.paths, config: this.config, env: this.env, routes: Routes
             })
         }
         else {
@@ -53,9 +55,9 @@ module.exports = (root) => {
             app.use(bodyParser.json());
             app.use(fileUpload());
 
-            if (this.middleware.eventExist('app')) {
-                app.use(this.middleware.event('appUse', {
-                    paths: this.paths, config: this.config, env: this.env, Routes
+            if (this.middleware.exists('express')) {
+                app.use(this.middleware.emit('express', {
+                    paths: this.paths, config: this.config, env: this.env, routes: Routes
                 }))
             }
 
@@ -114,8 +116,10 @@ module.exports = (root) => {
     this.start = () => {
         var port = this.config.app[this.env].port,
             hostname = this.config.app[this.env].hostname;
+            events = this.events
 
         this.app().listen(port, hostname, function () {
+            events.emit('startServer', {port, hostname})
             console.log(`Server running at http://${hostname}:${port}/`);
         });
     };

@@ -9,7 +9,7 @@ var fs = require("fs"),
     count = require("object-count"),
     merge = require("utils-merge"),
     exists = require('fs-exists-sync'),
-    middleware = require('../middleware/index.js');
+    events = require('../events/index.js');
 
 module.exports = class {
 
@@ -18,7 +18,7 @@ module.exports = class {
         this.config = config;
         this.paths = paths;
         this.appControllerPath = path.join(paths.app.app, 'controllers');
-        this.middleware = new middleware(paths);
+        this.events = new events(paths);
     }
 
     find() {
@@ -80,7 +80,8 @@ module.exports = class {
             model: null,
             view: null,
             request: null,
-            response: null
+            response: null,
+            events: this.events
         };
 
         if (this.view) {
@@ -106,7 +107,7 @@ module.exports = class {
             return this.error(controller, action, 404);
         }
 
-        app = this.middleware.event('afterLoadController', app)
+        app = this.events.emit('afterLoadController', app)
 
         if(!app){
             return;
@@ -126,7 +127,7 @@ module.exports = class {
         var control = require(path.join(this.appControllerPath, controller + 'Controller.js'))(app);
 
         if(control.init){
-            if(!control.init()){
+            if(control.init() === false){
                 return
             }
         }

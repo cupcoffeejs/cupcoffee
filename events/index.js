@@ -21,13 +21,13 @@ module.exports = class {
     loadFiles() {
         var files = [];
 
-        if (exists(paths.app.middleware)) {
-            fs.readdirSync(paths.app.middleware)
+        if (exists(paths.app.events)) {
+            fs.readdirSync(paths.app.events)
                 .filter(function (file) {
                     return (file.indexOf(".") !== 0);
                 })
                 .forEach(function (file) {
-                    files.push(path.join(paths.app.middleware, file));
+                    files.push(path.join(paths.app.events, file));
                 });
         }
 

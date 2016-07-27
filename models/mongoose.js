@@ -4,6 +4,7 @@ var fs = require("fs"),
     path = require("path"),
     exists = require('fs-exists-sync'),
     mongoose = require('mongoose'),
+    events = require('../events/index.js'),
     middleware = require('../middleware/index.js');
 
 module.exports = class {
@@ -14,6 +15,7 @@ module.exports = class {
         }
 
         this.middleware = new middleware(paths);
+        this.events = new events(paths);
 
         return this.connect(config);
     }
@@ -28,6 +30,8 @@ module.exports = class {
                 mongoose.connect(`mongodb://${config.host}/${config.name}`, config.config);
             }
 
+            mongoose.events = this.events;
+
             var models = [];
 
             fs.readdirSync(paths.app.models)
@@ -40,7 +44,7 @@ module.exports = class {
                         var schema = (model.schema) ? model.schema : model;
 
                         if (model.name) {
-                            models[model.name] = mongoose.model(model.name, this.middleware.event("beforeModelMongoDB", model));
+                            models[model.name] = mongoose.model(model.name, this.middleware.emit("mongoose", model));
                         }
                     }
                 });
