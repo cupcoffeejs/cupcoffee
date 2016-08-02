@@ -28,6 +28,7 @@ module.exports = (root) => {
     paths.app.routes = path.join(paths.app.app, 'routes');
     paths.app.middleware = path.join(paths.app.app, 'middleware');
     paths.app.events = path.join(paths.app.app, 'events');
+    paths.app.cli = path.join(paths.app.app, 'cli');
 
     paths.configs = path.join(__dirname, '..', '..', 'configs');
 

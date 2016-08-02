@@ -11,53 +11,72 @@ var path = require('path'),
     server = express();
 
 module.exports = (root) => {
-    this.paths = require('./configs/paths')(root);
-    this.config = require(path.join(this.paths.root, 'cupcoffee.json'));
+    this.root = path.resolve('.');
 
-    this.env = (process.env.NODE_CUPCOFFEE_ENV) ?
-        process.env.NODE_CUPCOFFEE_ENV : (process.env.NODE_ENV) ?
-        process.env.NODE_ENV : 'development';
+    this.init = (rootInit = false) => {
+        if(rootInit){
+            this.root = rootInit;
+        }
 
-    this.events = new events(this.paths)
-    this.middleware = new middleware(this.paths)
+        this.paths = require('./configs/paths')(this.root);
 
-    this.app = () => {
+        this.config = require(path.join(this.paths.root, 'cupcoffee.json'));
+
+        this.env = (process.env.NODE_CUPCOFFEE_ENV) ?
+            process.env.NODE_CUPCOFFEE_ENV : (process.env.NODE_ENV) ?
+            process.env.NODE_ENV : 'development';
+
+        this.events = new events(this.paths)
+        this.middleware = new middleware(this.paths)
+
         if (this.config.app) {
             if (!this.config.app[this.env]) {
                 if (this.config.app.env) {
-                    if (this.config.app[config.app.env]) {
+                    if (this.config.app[this.config.app.env]) {
                         this.env = this.config.app.env;
                     }
                 } else if (this.config.app['development']) {
                     this.env = 'development';
-                }
-                else if (this.config.app['production']) {
+                } else if (this.config.app['production']) {
                     this.env = 'production';
-                }
-                else {
+                } else {
                     console.error("CUPCOFFEE: NODE_CUPCOFFEE_ENV or NODE_ENV need to be declared.")
-                    return 0;
+                    return false;
                 }
             }
+        }
 
-            var Routes = module.exports.routes = new (require('./routes'))(this.config.app[this.env], this.paths);
+        return true;
+    }
+
+    this.app = () => {
+        if(this.init()){
+            var Routes = module.exports.routes = new(require('./routes'))(this.config.app[this.env], this.paths);
+        }
+        else{
+            return false;
         }
 
         if (this.events.exists('createApp')) {
             return this.exists.emit('createApp', {
-                paths: this.paths, config: this.config, env: this.env, routes: Routes
+                paths: this.paths,
+                config: this.config,
+                env: this.env,
+                routes: Routes
             })
-        }
-        else {
+        } else {
             var app = express()
 
-            app.use(bodyParser.urlencoded({extended: false}));
+            app.use(bodyParser.urlencoded());
             app.use(bodyParser.json());
             app.use(fileUpload());
 
             if (this.middleware.exists('express')) {
                 app.use(this.middleware.emit('express', {
-                    paths: this.paths, config: this.config, env: this.env, routes: Routes
+                    paths: this.paths,
+                    config: this.config,
+                    env: this.env,
+                    routes: Routes
                 }))
             }
 
@@ -72,9 +91,11 @@ module.exports = (root) => {
             return app
         }
     }
-
+/**
+ * Testar multiple  antes de publicar
+ */
     this.multiple = () => {
-        if (this.config.multiple) {
+        if (this.init() && this.config.multiple) {
             var config = this.config.multiple;
 
             if (config[this.env]) {
@@ -91,10 +112,11 @@ module.exports = (root) => {
 
                 try {
                     var app = require(path.resolve(site.path))(site, config);
-                }
-                catch (err) {
+                } catch (err) {
                     var app = express()
-                    app.use(bodyParser.urlencoded({extended: false}));
+                    app.use(bodyParser.urlencoded({
+                        extended: false
+                    }));
                     app.use(bodyParser.json());
                     app.use(fileUpload());
                     app.use(express.static(site.path));
@@ -113,13 +135,57 @@ module.exports = (root) => {
         }
     }
 
+    this.cli = (root, callback) => {
+        if(typeof root == 'function'){
+            callback = root;
+
+            var configsLocals = [
+                path.resolve('../'),
+                path.resolve('../../'),
+                path.resolve('../../../'),
+                path.resolve('../../../../'),
+                path.resolve('../../../../../')
+            ]
+
+            for(var key in configsLocals){
+                if(exists(path.resolve(configsLocals[key], 'cupcoffee.json'))){
+                    this.root = configsLocais[key];
+                    break;
+                }
+            }
+        }
+        else{
+            if(exists(path.resolve(root, 'cupcoffee.json'))){
+                this.root = root;
+            }
+            else{
+                console.error('Cannot find cupcoffee.json')
+                return false;
+            }
+        }
+
+        if(this.init(this.root)){
+            var cli = require('./cli')(this.config.app[this.env], this.paths)
+            return callback(cli);
+        }
+
+        return false;
+    }
+
     this.start = () => {
+        if(!this.init()){
+            return false;
+        }
+
         var port = this.config.app[this.env].port,
-            hostname = this.config.app[this.env].hostname;
+            hostname = this.config.app[this.env].hostname,
             events = this.events
 
-        this.app().listen(port, hostname, function () {
-            events.emit('startServer', {port, hostname})
+        this.app().listen(port, hostname, function() {
+            events.emit('startServer', {
+                port,
+                hostname
+            })
             console.log(`Server running at http://${hostname}:${port}/`);
         });
     };
