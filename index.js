@@ -6,7 +6,7 @@ var path = require('path'),
     evh = require('express-vhost'),
     express = require('express'),
     exists = require('fs-exists-sync'),
-    events = require('./events/index.js'),    
+    events = require('./events/index.js'),
     middleware = require('./middleware/index.js'),
     server = express();
 
@@ -26,8 +26,8 @@ module.exports = (root) => {
             process.env.NODE_CUPCOFFEE_ENV : (process.env.NODE_ENV) ?
             process.env.NODE_ENV : 'development';
 
-        this.events = new events(this.paths)
-        this.middleware = new middleware(this.paths)
+        this.events = new events(this.config, this.paths)
+        this.middleware = new middleware(this.config, this.paths)
 
         if (this.config.app) {
             if (!this.config.app[this.env]) {

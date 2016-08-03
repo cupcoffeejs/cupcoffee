@@ -18,19 +18,25 @@ module.exports = class {
         this.config = config;
         this.paths = paths;
         this.appControllerPath = path.join(paths.app.app, 'controllers');
-        this.events = new events(paths);
+        this.events = new events(config, paths);
     }
 
     find() {
         var url = this.request.params[0].split('/');
 
-        if (url[1]) {
-            var controller = url[1],
-                action = (url[2]) ? url[2] : 'index',
+        var position = 0;
+
+        if(!url[0]){
+            ++position;
+        }
+
+        if (url[position]) {
+            var controller = url[position],
+                action = (url[++position]) ? url[position] : 'index',
                 params = [];
 
-            if (url[3]) {
-                for (var i = 3; i < url.length; i++) {
+            if (url[++position]) {
+                for (var i = position; i < url.length; i++) {
                     params.push(url[i]);
                 }
             }

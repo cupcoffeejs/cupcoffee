@@ -5,14 +5,14 @@ var fs = require('fs'),
 
 module.exports = class {
 
-    constructor(paths) {
+    constructor(config, paths) {
         paths = paths;
         this.events = [];
 
         var files = this.loadFiles();
 
         for(var key in files){
-            this.events.push(require(files[key])());
+            this.events.push(require(files[key])({config, paths}));
         }
 
         return this;
@@ -24,7 +24,7 @@ module.exports = class {
         if (exists(paths.app.middleware)) {
             fs.readdirSync(paths.app.middleware)
                 .filter(function (file) {
-                    return (file.indexOf(".") !== 0);
+                    return (file.indexOf(".") !== 0 && path.extname(file) == ".js");
                 })
                 .forEach(function (file) {
                     files.push(path.join(paths.app.middleware, file));

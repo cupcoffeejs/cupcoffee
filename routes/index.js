@@ -29,7 +29,7 @@ module.exports = class {
         if (exists(paths.app.routes)) {
             fs.readdirSync(paths.app.routes)
                 .filter(function (file) {
-                    return (file.indexOf(".") !== 0);
+                    return (file.indexOf(".") !== 0 && path.extname(file) == ".js");
                 })
                 .forEach(function (file) {
                     files.push(path.join(paths.app.routes, file));
@@ -63,9 +63,11 @@ module.exports = class {
             }
         }
 
-        router.all('*', (request, response) => {
-            this.controller.http(request, response).find()
-        });
+        if(this.config.scaffold !== false){
+            router.all('*', (request, response) => {
+                this.controller.http(request, response).find()
+            });
+        }
 
         return router;
     }

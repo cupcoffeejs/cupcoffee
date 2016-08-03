@@ -17,7 +17,7 @@ module.exports = class {
             return null;
         }
 
-        this.middleware = new middleware(paths);
+        this.middleware = new middleware(config, paths);
 
         return this.connect(config);
     }

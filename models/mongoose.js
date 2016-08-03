@@ -14,8 +14,8 @@ module.exports = class {
             return null;
         }
 
-        this.middleware = new middleware(paths);
-        this.events = new events(paths);
+        this.middleware = new middleware(config, paths);
+        this.events = new events(config, paths);
 
         return this.connect(config);
     }

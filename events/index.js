@@ -5,14 +5,14 @@ var fs = require('fs'),
 
 module.exports = class {
 
-    constructor(paths) {
+    constructor(config, paths) {
         paths = paths;
         this.events = [];
 
         var files = this.loadFiles();
 
         for(var key in files){
-            this.events.push(require(files[key])());
+            this.events.push(require(files[key])({config, paths}));
         }
 
         return this;
