@@ -17,6 +17,7 @@ module.exports = (config, paths) => {
     this.controller.model = this.model;
     this.config = config;
     this.paths = paths;
+    this.logger = require('../logs')(config, paths);
 
     return this;
 }

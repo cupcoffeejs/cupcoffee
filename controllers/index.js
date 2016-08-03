@@ -81,7 +81,8 @@ module.exports = class {
             view: null,
             request: null,
             response: null,
-            events: this.events
+            events: this.events,
+            logger: this.logger
         };
 
         if (this.view) {

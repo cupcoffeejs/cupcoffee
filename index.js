@@ -6,7 +6,7 @@ var path = require('path'),
     evh = require('express-vhost'),
     express = require('express'),
     exists = require('fs-exists-sync'),
-    events = require('./events/index.js'),
+    events = require('./events/index.js'),    
     middleware = require('./middleware/index.js'),
     server = express();
 

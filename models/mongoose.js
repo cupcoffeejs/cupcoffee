@@ -31,6 +31,7 @@ module.exports = class {
             }
 
             mongoose.events = this.events;
+            mongoose.logger = require('../logs')(config, paths);
 
             var models = [];
 
