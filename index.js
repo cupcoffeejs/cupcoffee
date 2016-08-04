@@ -62,7 +62,11 @@ module.exports = (root) => {
                 paths: this.paths,
                 config: this.config,
                 env: this.env,
-                routes: Routes
+                routes: Routes,
+                controller: Routes.controller,
+                model: Routes.model,
+                view: Routes.view,
+                logger: Routes.logger
             })
         } else {
             var app = express()
@@ -76,7 +80,11 @@ module.exports = (root) => {
                     paths: this.paths,
                     config: this.config,
                     env: this.env,
-                    routes: Routes
+                    routes: Routes,
+                    controller: Routes.controller,
+                    model: Routes.model,
+                    view: Routes.view,
+                    logger: Routes.logger
                 }))
             }
 

@@ -87,6 +87,8 @@ module.exports = class {
             view: null,
             request: null,
             response: null,
+            req: null,
+            res: null,
             events: this.events,
             logger: this.logger
         };
@@ -101,6 +103,7 @@ module.exports = class {
 
         if (this.request) {
             app.request = this.request;
+            app.req = this.request;
 
             app.method = this.request.method.toLocaleLowerCase();
             var methodAction = app.methodAction = app.method + '_' + action;
@@ -108,6 +111,7 @@ module.exports = class {
 
         if (this.response) {
             app.response = this.response;
+            app.res = this.response;
         }
 
         if (!this.files[controller]) {
