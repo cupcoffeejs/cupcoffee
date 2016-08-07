@@ -151,7 +151,7 @@ module.exports = class {
             return this.error(controller, action, 404);
         }
 
-        if (count(this.request.body)) {
+        if (count(this.request.body) && params.length == 0) {
             var body = this.request.body;
 
             if (!body.files && this.request.files) {
