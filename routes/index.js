@@ -16,11 +16,7 @@ module.exports = class {
         this.model = require('../models')(config, paths)
         this.logger = require('../logs')(config, paths);
         this.view = new (require('../views'))({config, paths});
-        this.controller = new (require('../controllers'))(config, paths);
-
-        this.controller.view = this.view;
-        this.controller.model = this.model;
-        this.controller.logger = this.logger;
+        this.controller = new (require('../controllers'))(config, paths)
     }
 
     loadFiles() {
@@ -45,12 +41,13 @@ module.exports = class {
 
         var files = this.loadFiles();
 
-        this.controller.load();
+
+        this.controller.load()
 
         for (var key in files) {
             var appRouter = require(files[key])({
                 'router': express.Router(),
-                'controller': this.controller,
+                'controller': this.controller.init(),
                 'model': this.model,
                 'view': this.view,
                 'paths': this.paths,
@@ -65,7 +62,7 @@ module.exports = class {
 
         if(this.config.scaffold !== false){
             router.all('*', (request, response) => {
-                this.controller.http(request, response).find()
+                this.controller.init().http(request, response).find();
             });
         }
 
