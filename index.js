@@ -10,6 +10,7 @@ var path = require('path'),
     middleware = require('./middleware/index.js'),
     server = express();
 
+require('dotenv').config();
 module.exports = (root) => {
     this.root = path.resolve('.');
 
