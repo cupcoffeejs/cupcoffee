@@ -6,16 +6,17 @@ var fs = require("fs"),
     count = require("object-count"),
     merge = require("utils-merge"),
     exists = require('fs-exists-sync'),
-    events = require('../events/index.js');
+    events = require('../events/index.js'),
+    paths = require('../configs/paths'),
+    config = require('../configs/config');
 
 module.exports = class {
     
-    constructor(config, paths) {
+    constructor() {
         this.files = {};
-        this.config = config;
-        this.paths = paths;
-        this.appControllerPath = path.join(paths.app.app, 'controllers');
-        this.events = new events(config, paths);
+        this.appControllerPath = paths.app.app.controllers
+        this.events = new events();
+        this.view = new(require('../views'))();
     }
 
     find() {
@@ -182,9 +183,7 @@ module.exports = class {
     http(request, response) {
         this.request = request;
         this.response = response;
-        this.view.request = request
-        this.view.response = response
-        this.view.setConfig({request, response});
+        this.view.http(request, response)
         return this;
     }
 

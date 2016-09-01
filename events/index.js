@@ -1,18 +1,20 @@
 var fs = require('fs'),
     exists = require('fs-exists-sync'),
-    path = require('path')
+    path = require('path'),
+    paths = require('../configs/paths'),
+    config = require('../configs/config')
 
 
 module.exports = class {
 
-    constructor(config, paths) {
+    constructor() {
         paths = paths;
         this.events = [];
 
         var files = this.loadFiles();
 
         for(var key in files){
-            this.events.push(require(files[key])({config, paths}));
+            this.events.push(require(files[key])());
         }
 
         return this;

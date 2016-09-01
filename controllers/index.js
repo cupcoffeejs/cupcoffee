@@ -4,14 +4,15 @@
 
 "use strict";
 
-var controller = require('./controller.js')
+var controller = require('./controller.js'),
+    paths = require('../configs/paths'),
+    config = require('../configs/config');
+
 
 module.exports = class {
 
-    constructor(config, paths) {
-        this.config = config;
-        this.paths = paths;
-        this.controller = new controller(config, paths)
+    constructor() {
+        this.controller = new controller()
     }
 
     load() {
@@ -19,9 +20,13 @@ module.exports = class {
         return this.files;
     }
 
-    init(){
-        var control = new controller(this.config, this.paths)
-        if(this.files){
+    init(req, res) {
+        var control = new controller()
+        if(req && res){
+            control.http(req, res);
+        }
+        
+        if (this.files) {
             control.files = this.files;
         }
 

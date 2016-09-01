@@ -1,4 +1,3 @@
-
 /**
  * routes/index.js
  * */
@@ -7,17 +6,17 @@
 
 var fs = require('fs'),
     path = require('path'),
-    exists = require('fs-exists-sync')
+    exists = require('fs-exists-sync'),
+    paths = require('../configs/paths'),
+    config = require('../configs/config');
 
 module.exports = class {
 
-    constructor(config, paths) {
-        this.config = config;
-        this.paths = paths;
-        this.model = require('../models')(config, paths)
-        this.logger = require('../logs')(config, paths);
-        this.view = new (require('../views'))({config, paths});
-        this.controller = new (require('../controllers'))(config, paths)
+    constructor() {
+        this.model = require('../models')()
+        this.logger = require('../logs')();
+        this.view = new(require('../views'))();
+        this.controller = new(require('../controllers'))()
     }
 
     loadFiles() {
@@ -25,10 +24,10 @@ module.exports = class {
 
         if (exists(paths.app.routes)) {
             fs.readdirSync(paths.app.routes)
-                .filter(function (file) {
+                .filter(function(file) {
                     return (file.indexOf(".") !== 0 && path.extname(file) == ".js");
                 })
-                .forEach(function (file) {
+                .forEach(function(file) {
                     files.push(path.join(paths.app.routes, file));
                 });
         }
@@ -51,8 +50,6 @@ module.exports = class {
                 'controller': this.controller.init(),
                 'model': this.model,
                 'view': this.view,
-                'paths': this.paths,
-                'config': this.config,
                 'logger': this.logger
             });
 
@@ -61,9 +58,9 @@ module.exports = class {
             }
         }
 
-        if(this.config.scaffold !== false){
-            router.all('*', (request, response) => {
-                this.controller.init().http(request, response).find();
+        if (config('scaffold') !== false) {
+            router.all('*', (req, res) => {
+                this.controller.init(req, res).find();
             });
         }
 

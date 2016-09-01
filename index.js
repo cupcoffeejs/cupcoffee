@@ -8,51 +8,29 @@ var path = require('path'),
     exists = require('fs-exists-sync'),
     events = require('./events/index.js'),
     middleware = require('./middleware/index.js'),
-    server = express();
+    server = express(),
+    paths = require('./configs/paths'),
+    config = require('./configs/config');
 
-require('dotenv').config();
-module.exports = (root) => {
-    this.root = path.resolve('.');
 
-    this.init = (rootInit = false) => {
-        if(rootInit){
-            this.root = rootInit;
-        }
+module.exports = () => {
+    this.root = config('root') || path.resolve('.');
+    
+    this.paths = paths;
+    
+    this.config = config;
 
-        this.paths = require('./configs/paths')(this.root);
-
-        this.config = require(path.join(this.paths.root, 'cupcoffee.json'));
-
-        this.env = (process.env.NODE_CUPCOFFEE_ENV) ?
-            process.env.NODE_CUPCOFFEE_ENV : (process.env.NODE_ENV) ?
-            process.env.NODE_ENV : 'development';
-
-        this.events = new events(this.config, this.paths)
-        this.middleware = new middleware(this.config, this.paths)
-
-        if (this.config.app) {
-            if (!this.config.app[this.env]) {
-                if (this.config.app.env) {
-                    if (this.config.app[this.config.app.env]) {
-                        this.env = this.config.app.env;
-                    }
-                } else if (this.config.app['development']) {
-                    this.env = 'development';
-                } else if (this.config.app['production']) {
-                    this.env = 'production';
-                } else {
-                    console.error("CUPCOFFEE: NODE_CUPCOFFEE_ENV or NODE_ENV need to be declared.")
-                    return false;
-                }
-            }
-        }
+    this.init = () => {
+        this.env = config('env') || 'development'
+        this.events = new events()
+        this.middleware = new middleware()
 
         return true;
     }
 
     this.app = () => {
         if(this.init()){
-            var Routes = module.exports.routes = new(require('./routes'))(this.config.app[this.env], this.paths);
+            var Routes = module.exports.routes = new(require('./routes'))();
         }
         else{
             return false;
@@ -60,9 +38,6 @@ module.exports = (root) => {
 
         if (this.events.exists('createApp')) {
             return this.exists.emit('createApp', {
-                paths: this.paths,
-                config: this.config,
-                env: this.env,
                 routes: Routes,
                 controller: Routes.controller,
                 model: Routes.model,
@@ -72,15 +47,12 @@ module.exports = (root) => {
         } else {
             var app = express()
 
-            app.use(bodyParser.urlencoded());
+            app.use(bodyParser.urlencoded({ extended: false }));
             app.use(bodyParser.json());
             app.use(fileUpload());
 
             if (this.middleware.exists('express')) {
                 app.use(this.middleware.emit('express', {
-                    paths: this.paths,
-                    config: this.config,
-                    env: this.env,
                     routes: Routes,
                     controller: Routes.controller,
                     model: Routes.model,
@@ -89,7 +61,7 @@ module.exports = (root) => {
                 }))
             }
 
-            var publicPath = this.config.app.publicPath || this.paths.public.public;
+            var publicPath = config('public') || paths.public.public;
 
             if (exists(publicPath)) {
                 app.use(express.static(publicPath));
@@ -103,7 +75,7 @@ module.exports = (root) => {
 /**
  * Testar multiple  antes de publicar
  */
-    this.multiple = () => {
+   /* this.multiple = () => {
         if (this.init() && this.config.multiple) {
             var config = this.config.multiple;
 
@@ -142,7 +114,7 @@ module.exports = (root) => {
 
             })
         }
-    }
+    }*/
 
     this.cli = (root, callback) => {
         if(typeof root == 'function'){
@@ -158,7 +130,7 @@ module.exports = (root) => {
 
             for(var key in configsLocals){
                 if(exists(path.resolve(configsLocals[key], 'cupcoffee.json'))){
-                    this.root = configsLocais[key];
+                    this.root = configsLocals[key];
                     break;
                 }
             }
@@ -174,7 +146,7 @@ module.exports = (root) => {
         }
 
         if(this.init(this.root)){
-            var cli = require('./cli')(this.config.app[this.env], this.paths)
+            var cli = require('./cli')()
             return callback(cli);
         }
 
@@ -186,10 +158,11 @@ module.exports = (root) => {
             return false;
         }
 
-        var port = this.config.app[this.env].port,
-            hostname = this.config.app[this.env].hostname,
+        var port = config('port'),
+            hostname = config('host') || config('hostname') ||  config('ip') || 'localhost',
             events = this.events
-
+     
+ 
         this.app().listen(port, hostname, function() {
             events.emit('startServer', {
                 port,

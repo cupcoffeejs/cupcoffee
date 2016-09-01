@@ -1,23 +1,14 @@
-/**
- * controllers/index.js
- * */
+var paths = require('../configs/paths'),
+    config = require('../configs/config');
+    
+module.exports = () => {
+    this.model = require('../models')()
 
-"use strict";
-
-module.exports = (config, paths) => {
-    this.model = require('../models')(config, paths)
-
-    this.view = new(require('../views'))({
-        config,
-        paths
-    });
-
-    this.controller = new(require('../controllers'))(config, paths);
+    this.view = new(require('../views'))();
+    this.controller = new(require('../controllers'))();
     this.controller.view = this.view;
     this.controller.model = this.model;
-    this.config = config;
-    this.paths = paths;
-    this.logger = require('../logs')(config, paths);
+    this.logger = require('../logs')();
 
     return this;
 }

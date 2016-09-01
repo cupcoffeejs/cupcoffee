@@ -5,33 +5,33 @@ var fs = require("fs"),
     exists = require('fs-exists-sync'),
     mongoose = require('mongoose'),
     events = require('../events/index.js'),
-    middleware = require('../middleware/index.js');
+    middleware = require('../middleware/index.js'),
+    paths = require('../configs/paths'),
+    config = require('../configs/config');
 
 module.exports = class {
 
-    constructor(config, paths) {
-        if (!config) {
-            return null;
-        }
+    constructor() {
+        this.middleware = new middleware();
+        this.events = new events();
 
-        this.middleware = new middleware(config, paths);
-        this.events = new events(config, paths);
-
-        return this.connect(config);
+        return this.connect();
     }
 
-    connect(config) {
+    connect() {
         if (exists(paths.app.models)) {
 
-            if (config.connect) {
-                mongoose.connect(config.connect, config.config);
+            if (config('database_connect')) {
+                mongoose.connect(JSON.parse(config('database_connect')), JSON.parse(config('database_config')) || null);
             }
             else {
-                mongoose.connect(`mongodb://${config.host}/${config.name}`, config.config);
+                var host = config('database_host') || config('database_hostname')
+                var name = config('database_name')
+                mongoose.connect(`mongodb://${host}/${name}`, JSON.parse(config('database_config')) || null);
             }
 
             mongoose.events = this.events;
-            mongoose.logger = require('../logs')(config, paths);
+            mongoose.logger = require('../logs')();
 
             var models = [];
 
