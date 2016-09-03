@@ -1,40 +1,22 @@
-"use strict"
+var paths = require('../configs/paths'),
+    config = require('../configs/config')
 
-module.exports = (config, paths) => {
+module.exports = () => {
 
     var model;
 
-    if (config.database) {
+    if (config('database_type')) {
         /**
          * Mongoosejs
          * */
-        if (config.database.type && config.database.type == "mongodb") {
-            model = new (require('./mongoose.js'))(config.database, paths);
+        if (config('database_type') == "mongodb") {
+            model = new (require('./mongoose.js'))();
         }
         /**
          * Sequelizejs
          * */
         else {
-            if (config.database.options) {
-                config.database.config = config.database.options;
-            }
-
-            if (!config.database.config) {
-                config.database.config = {};
-                config.database.config.dialect = config.database.type;
-                config.database.config.host = config.database.host || 'localhost';
-            }
-            else {
-                if (config.database.config.dialect) {
-                    config.database.type = config.database.config.dialect;
-                }
-
-                if (config.database.config.host) {
-                    config.database.host = config.database.config.host;
-                }
-            }
-
-            model = new (require('./sequelize.js'))(config.database, paths);
+            model = new (require('./sequelize.js'))();
         }
     }
 

@@ -8,23 +8,21 @@ var fs = require("fs"),
     path = require("path"),
     exists = require('fs-exists-sync'),
     Sequelize = require("sequelize"),
-    middleware = require('./middleware/index.js');
+    middleware = require('./middleware/index.js'),
+    paths = require('../configs/paths'),
+    config = require('../configs/config')
 
 module.exports = class {
 
-    constructor(config, paths) {
-        if (!config) {
-            return null;
-        }
+    constructor() {
+        this.middleware = new middleware();
 
-        this.middleware = new middleware(config, paths);
-
-        return this.connect(config);
+        return this.connect();
     }
 
-    connect(config) {
+    connect() {
         if (exists(paths.app.models)) {
-            var sequelize = new Sequelize(config.name, config.username, config.password, config.config),
+            var sequelize = new Sequelize(config('database_name'), ('database_username') || ('database_user'), ('database_password'), ('database_config')),
                 db = {};
 
             fs.readdirSync(paths.app.models)

@@ -6,30 +6,25 @@
 
 var pug = require('pug'),
     path = require('path'),
-    fs = require('fs');
+    fs = require('fs'),
+    paths = require('../configs/paths'),
+    config = require('../configs/config')
 
 module.exports = class {
 
-    constructor({request, response, controllerName = '', action = '', config, paths}) {
-        this.request = request;
-        this.response = response;
-        this.controllerName = controllerName;
-        this.actionName = action;
-        this.paths = paths;
-        this.config = config;
-
+    constructor() {
         this.templateActive = true;
         this.templateOptions = null;
         this.renderContent = null;
 
-        if (this.config.template) {
-            this.templateName = this.templateNameDefault = this.config.template.name;
+        if (config('template')) {
+            this.templateName = this.templateNameDefault = config('template');
 
             if (!path.extname(this.config.template.layout)) {
                 this.config.template.layout += '.pug';
             }
 
-            this.templateLayout = this.templateLayoutDefault = this.config.template.layout;
+            this.templateLayout = this.templateLayoutDefault = config('template_layout');
         }
         else {
             this.templateName = this.templateNameDefault = 'default';
@@ -124,7 +119,7 @@ module.exports = class {
         return this;
     }
 
-    setConfig({response, request, config, paths}) {
+    setConfig({response, request}) {
         if (response) {
             this.response = response;
         }
@@ -134,7 +129,7 @@ module.exports = class {
         }
 
         if (paths) {
-            this.paths = paths;
+            paths = paths;
         }
 
         if (config) {
@@ -216,7 +211,7 @@ module.exports = class {
     render(name, options) {
         var viewPaths;
 
-        if (typeof name == 'object' || typeof name == 'array') {
+        if (typeof name == 'object') {
             options = name;
             name = this.actionName;
         }
@@ -227,26 +222,26 @@ module.exports = class {
 
         if (!path.extname(name)) {
             viewPaths = [
-                path.join(this.paths.app.views, this.controllerName, name + '.pug'),
-                path.join(this.paths.app.views, this.controllerName, name + '.jade'),
-                path.join(this.paths.app.views, this.controllerName, name + '.html'),
-                path.join(this.paths.app.views, name + '.pug'),
-                path.join(this.paths.app.views, name + '.jade'),
-                path.join(this.paths.app.views, name + '.html')
+                path.join(paths.app.views, this.controllerName, name + '.pug'),
+                path.join(paths.app.views, this.controllerName, name + '.jade'),
+                path.join(paths.app.views, this.controllerName, name + '.html'),
+                path.join(paths.app.views, name + '.pug'),
+                path.join(paths.app.views, name + '.jade'),
+                path.join(paths.app.views, name + '.html')
             ]
 
         }
         else {
             viewPaths = [
-                path.join(this.paths.app.views, this.controllerName, this.actionName, name),
-                path.join(this.paths.app.views, this.controllerName, name),
-                path.join(this.paths.app.views, name)
+                path.join(paths.app.views, this.controllerName, this.actionName, name),
+                path.join(paths.app.views, this.controllerName, name),
+                path.join(paths.app.views, name)
             ]
         }
 
         for (var key in viewPaths) {
             try {
-                if (path.extname(viewPaths[key]) == '.pug' || path.extname(filePath) == '.jade') {
+                if (path.extname(viewPaths[key]) == '.pug') {
                     return this.renderTemplate(pug.renderFile(viewPaths[key], options))
                 }
 

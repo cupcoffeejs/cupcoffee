@@ -5,33 +5,34 @@ var fs = require("fs"),
     exists = require('fs-exists-sync'),
     mongoose = require('mongoose'),
     events = require('../events/index.js'),
-    middleware = require('../middleware/index.js');
+    middleware = require('../middleware/index.js'),
+    paths = require('../configs/paths'),
+    config = require('../configs/config');
 
 module.exports = class {
 
-    constructor(config, paths) {
-        if (!config) {
-            return null;
-        }
+    constructor() {
+        this.middleware = new middleware();
+        this.events = new events();
 
-        this.middleware = new middleware(config, paths);
-        this.events = new events(config, paths);
-
-        return this.connect(config);
+        return this.connect();
     }
 
-    connect(config) {
+    connect() {
         if (exists(paths.app.models)) {
+            var dbconfig = config('database_config') ? JSON.parse(config('database_config')) : null;
 
-            if (config.connect) {
-                mongoose.connect(config.connect, config.config);
-            }
-            else {
-                mongoose.connect(`mongodb://${config.host}/${config.name}`, config.config);
+            if (config('database_connect')) {
+                mongoose.connect(JSON.parse(config('database_connect')), dbconfig);
+            } else {
+                var host = config('database_host') || config('database_hostname'),
+                    name = config('database_name')
+console.log(name)
+                mongoose.connect(`mongodb://${host}/${name}`, dbconfig);
             }
 
             mongoose.events = this.events;
-            mongoose.logger = require('../logs')(config, paths);
+            mongoose.logger = require('../logs')();
 
             var models = [];
 
@@ -41,6 +42,7 @@ module.exports = class {
                 })
                 .forEach((file) => {
                     var model = require(path.join(paths.app.models, file))(mongoose);
+
                     if (typeof model == "object") {
                         var schema = (model.schema) ? model.schema : model;
 
