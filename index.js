@@ -15,9 +15,9 @@ var path = require('path'),
 
 module.exports = () => {
     this.root = config('root') || path.resolve('.');
-    
+
     this.paths = paths;
-    
+
     this.config = config;
 
     this.init = () => {
@@ -29,140 +29,110 @@ module.exports = () => {
     }
 
     this.app = () => {
-        if(this.init()){
-            var Routes = module.exports.routes = new(require('./routes'))();
-        }
-        else{
-            return false;
-        }
+            if (this.init()) {
+                var Routes = module.exports.routes = new(require('./routes'))();
+            } else {
+                return false;
+            }
 
-        if (this.events.exists('createApp')) {
-            return this.exists.emit('createApp', {
-                routes: Routes,
-                controller: Routes.controller,
-                model: Routes.model,
-                view: Routes.view,
-                logger: Routes.logger
-            })
-        } else {
-            var app = express()
-
-            app.use(bodyParser.urlencoded({ extended: false }));
-            app.use(bodyParser.json());
-            app.use(fileUpload());
-
-            if (this.middleware.exists('express')) {
-                app.use(this.middleware.emit('express', {
+            if (this.events.exists('createApp')) {
+                return this.exists.emit('createApp', {
                     routes: Routes,
                     controller: Routes.controller,
                     model: Routes.model,
                     view: Routes.view,
                     logger: Routes.logger
-                }))
-            }
+                })
+            } else {
+                var app = express()
 
-            var publicPath = config('public') || paths.public.public;
+                app.use(bodyParser.urlencoded({
+                    extended: false
+                }));
+                app.use(bodyParser.json());
+                app.use(fileUpload());
 
-            if (exists(publicPath)) {
-                app.use(express.static(publicPath));
-            }
-
-            app.use(Routes.auto());
-
-            return app
-        }
-    }
-/**
- * Testar multiple  antes de publicar
- */
-   /* this.multiple = () => {
-        if (this.init() && this.config.multiple) {
-            var config = this.config.multiple;
-
-            if (config[this.env]) {
-                config = config[this.env];
-            }
-
-            server.use(evh.vhost(server.enabled('trust proxy')));
-            server.listen(config.port);
-
-            config.sites.forEach((site) => {
-                if (site[this.env]) {
-                    site = site[this.env];
+                if (this.middleware.exists('express')) {
+                    app.use(this.middleware.emit('express', {
+                        routes: Routes,
+                        controller: Routes.controller,
+                        model: Routes.model,
+                        view: Routes.view,
+                        logger: Routes.logger
+                    }))
                 }
 
-                try {
-                    var app = require(path.resolve(site.path))(site, config);
-                } catch (err) {
-                    var app = express()
-                    app.use(bodyParser.urlencoded({
-                        extended: false
-                    }));
-                    app.use(bodyParser.json());
-                    app.use(fileUpload());
-                    app.use(express.static(site.path));
+                var publicPath = config('public') || paths.public.public;
+
+                if (exists(publicPath)) {
+                    app.use(express.static(publicPath));
                 }
 
-                if (!Array.isArray(site.domain)) {
-                    site.domain = [site.domain];
-                }
+                app.use(Routes.auto());
 
-                for (var key in site.domain) {
-                    evh.register(site.domain[key], app);
-                    console.log(`Site ${site.name}, domain ${site.domain[key]}, registed in port ${config.port}`)
-                }
-
-            })
-        }
-    }*/
-
-    this.cli = (root, callback) => {
-        if(typeof root == 'function'){
-            callback = root;
-
-            var configsLocals = [
-                path.resolve('../'),
-                path.resolve('../../'),
-                path.resolve('../../../'),
-                path.resolve('../../../../'),
-                path.resolve('../../../../../')
-            ]
-
-            for(var key in configsLocals){
-                if(exists(path.resolve(configsLocals[key], 'cupcoffee.json'))){
-                    this.root = configsLocals[key];
-                    break;
-                }
+                return app
             }
         }
-        else{
-            if(exists(path.resolve(root, 'cupcoffee.json'))){
-                this.root = root;
-            }
-            else{
-                console.error('Cannot find cupcoffee.json')
-                return false;
-            }
-        }
+        /**
+         * Testar multiple  antes de publicar
+         */
+        /* this.multiple = () => {
+             if (this.init() && this.config.multiple) {
+                 var config = this.config.multiple;
 
-        if(this.init(this.root)){
-            var cli = require('./cli')()
-            return callback(cli);
-        }
+                 if (config[this.env]) {
+                     config = config[this.env];
+                 }
 
+                 server.use(evh.vhost(server.enabled('trust proxy')));
+                 server.listen(config.port);
+
+                 config.sites.forEach((site) => {
+                     if (site[this.env]) {
+                         site = site[this.env];
+                     }
+
+                     try {
+                         var app = require(path.resolve(site.path))(site, config);
+                     } catch (err) {
+                         var app = express()
+                         app.use(bodyParser.urlencoded({
+                             extended: false
+                         }));
+                         app.use(bodyParser.json());
+                         app.use(fileUpload());
+                         app.use(express.static(site.path));
+                     }
+
+                     if (!Array.isArray(site.domain)) {
+                         site.domain = [site.domain];
+                     }
+
+                     for (var key in site.domain) {
+                         evh.register(site.domain[key], app);
+                         console.log(`Site ${site.name}, domain ${site.domain[key]}, registed in port ${config.port}`)
+                     }
+
+                 })
+             }
+         }*/
+
+    this.cli = (callback) => {
+        var cli = require('./cli')()
+        return callback(cli);
         return false;
     }
 
     this.start = () => {
-        if(!this.init()){
+        if (!this.init()) {
             return false;
         }
 
         var port = config('port'),
-            hostname = config('host') || config('hostname') ||  config('ip') || 'localhost',
+            hostname = config('host') || config('hostname') || config('ip') || 'localhost',
             events = this.events
-     
- 
+
+
         this.app().listen(port, hostname, function() {
             events.emit('startServer', {
                 port,
