@@ -221,6 +221,7 @@ module.exports = class {
         }
 
         if (!path.extname(name)) {
+            console.log(this.controllerName)
             viewPaths = [
                 path.join(paths.app.views, this.controllerName, name + '.pug'),
                 path.join(paths.app.views, this.controllerName, name + '.jade'),

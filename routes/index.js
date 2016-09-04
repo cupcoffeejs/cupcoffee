@@ -43,6 +43,7 @@ module.exports = class {
 
 
         this.controller.load()
+        this.controller.model = this.model;
 
         for (var key in files) {
             var appRouter = require(files[key])({

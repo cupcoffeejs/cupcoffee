@@ -11,10 +11,9 @@ var fs = require("fs"),
     config = require('../configs/config');
 
 module.exports = class {
-    
+
     constructor() {
         this.files = {};
-        this.appControllerPath = paths.app.app.controllers
         this.events = new events();
         this.view = new(require('../views'))();
     }
@@ -54,7 +53,7 @@ module.exports = class {
     exists(controller, action = false) {
         if (action) {
             if (this.files[controller]) {
-                var control = require(path.join(this.appControllerPath, controller + 'Controller.js'))({});
+                var control = require(path.join(paths.app.controllers, controller + 'Controller.js'))({});
                 if (typeof control[action] == 'function') {
                     return true
                 }
@@ -124,8 +123,8 @@ module.exports = class {
 
         var defaultController;
 
-        if(exists(path.join(this.appControllerPath, 'index.js'))){
-            defaultController = require(path.join(this.appControllerPath, 'index.js'))(app);
+        if(exists(path.join(paths.app.controllers, 'index.js'))){
+            defaultController = require(path.join(paths.app.controllers, 'index.js'))(app);
             app.index = defaultController;
         }
         else{
@@ -133,7 +132,7 @@ module.exports = class {
         }
 
 
-        var control = require(path.join(this.appControllerPath, controller + 'Controller.js'))(app);
+        var control = require(path.join(paths.app.controllers, controller + 'Controller.js'))(app);
 
         if(control.init){
             if(control.init() === false){
@@ -189,8 +188,8 @@ module.exports = class {
 
     load() {
         var files = [];
-        if (exists(this.appControllerPath)) {
-            fs.readdirSync(this.appControllerPath)
+        if (exists(paths.app.controllers)) {
+            fs.readdirSync(paths.app.controllers)
                 .filter(function (file) {
                     return (file.indexOf(".") !== 0) && (file !== "index.js") && (file.indexOf("Controller") > -1);
                 })
@@ -201,7 +200,7 @@ module.exports = class {
             this.files = files;
         }
 
-        return this;
+        return files;
     }
 
     error(controller, action, error) {

@@ -16,7 +16,7 @@ module.exports = class {
     }
 
     load() {
-        this.files = this.controller.load()
+        this.files = this.controller.load();
         return this.files;
     }
 
@@ -25,9 +25,13 @@ module.exports = class {
         if(req && res){
             control.http(req, res);
         }
-        
+
         if (this.files) {
             control.files = this.files;
+        }
+
+        if (this.model) {
+            control.model = this.model;
         }
 
         return control;
