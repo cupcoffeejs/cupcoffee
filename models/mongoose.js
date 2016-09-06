@@ -27,7 +27,7 @@ module.exports = class {
             } else {
                 var host = config('database_host') || config('database_hostname'),
                     name = config('database_name')
-console.log(name)
+
                 mongoose.connect(`mongodb://${host}/${name}`, dbconfig);
             }
 

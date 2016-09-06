@@ -220,8 +220,11 @@ module.exports = class {
             name = this.actionName;
         }
 
+        if(!this.controllerName){
+            return console.error('ERROR: Controller name not defined')
+        }
+
         if (!path.extname(name)) {
-            console.log(this.controllerName)
             viewPaths = [
                 path.join(paths.app.views, this.controllerName, name + '.pug'),
                 path.join(paths.app.views, this.controllerName, name + '.jade'),
