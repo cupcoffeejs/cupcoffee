@@ -7,12 +7,13 @@ var fs = require('fs'),
 module.exports = class {
 
     constructor() {
-        this.events = [];
+        this.middleware = {};
 
         var files = this.loadFiles();
 
         for (var key in files) {
-            this.events.push(require(files[key])());
+
+            this.middleware[path.basename(files[key], '.js')] = require(files[key]);
         }
 
         return this;
@@ -35,29 +36,13 @@ module.exports = class {
     }
 
     exists(name) {
-        for (var key in this.events) {
-            if (this.events[key][name]) {
-                return true
-            }
-        }
-
-        return false;
+        return (this.middleware[name]);
     }
 
-    emit(eventName, options) {
-        var events = (name, options, key = 0) => {
-            for (var i = key; i < this.events.length; i++) {
-                if (this.events[i][name]) {
-                    return this.events[i][name](options, (returns) => {
-                        return events(name, returns, ++i)
-                    })
-                }
-            }
-
-            return options;
+    emit(name, options) {
+        if (this.middleware[name]) {
+            return this.middleware[name](options);
         }
-
-        return events(eventName, options);
     }
 
 }

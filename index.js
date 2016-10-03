@@ -14,6 +14,16 @@ var path = require('path'),
 
 
 module.exports = () => {
+
+    this.get = () => {
+        return {
+            model: require('./models'),
+            logger: require('./logs'),
+            view: require('./views'),
+            controller: require('./controllers')
+        }
+    }
+
     this.root = config('root') || path.resolve('.');
 
     this.paths = paths;
