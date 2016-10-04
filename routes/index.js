@@ -48,7 +48,7 @@ module.exports = class {
         for (var key in files) {
             var appRouter = require(files[key])({
                 'router': express.Router(),
-                'controller': this.controller.init(),
+                'controller': this.controller,
                 'model': this.model,
                 'view': this.view,
                 'logger': this.logger
