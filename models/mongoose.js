@@ -47,7 +47,7 @@ module.exports = class {
                         var schema = (model.schema) ? model.schema : model;
 
                         if (model.name) {
-                            models[model.name] = mongoose.model(model.name, this.middleware.emit("mongoose", model));
+                            models[model.name] = mongoose.model(model.name, this.middleware.exists("mongoose") ? this.middleware.emit("mongoose", model) : model);
                         }
                     }
                 });

@@ -41,6 +41,8 @@
     "pug": "^2.0.0-beta3",
     "replaceall": "^0.1.6",
     "validator": "^5.4.0",
-    "vhost": "^3.0.2"
+    "vhost": "^3.0.2",
+    "winston": "^2.2.0",
+    "winston-email": "^0.1.0"
   }
 }
