@@ -9,6 +9,10 @@ var fs = require("fs"),
     paths = require('../configs/paths'),
     config = require('../configs/config');
 
+if (global.Promise) {
+    mongoose.Promise = global.Promise;
+}
+
 module.exports = class {
 
     constructor() {
