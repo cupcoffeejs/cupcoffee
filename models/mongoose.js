@@ -8,6 +8,7 @@ var fs = require("fs"),
     middleware = require('../middleware/index.js'),
     paths = require('../configs/paths'),
     config = require('../configs/config');
+    mongoose.Promise = global.Promise;
 
 module.exports = class {
 
@@ -27,7 +28,7 @@ module.exports = class {
             } else {
                 var host = config('database_host') || config('database_hostname'),
                     name = config('database_name')
-
+                    console.log(host, name)
                 mongoose.connect(`mongodb://${host}/${name}`, dbconfig);
             }
 
@@ -47,7 +48,7 @@ module.exports = class {
                         var schema = (model.schema) ? model.schema : model;
 
                         if (model.name) {
-                            models[model.name] = mongoose.model(model.name, this.middleware.emit("mongoose", model));
+                            models[model.name] = mongoose.model(model.name, this.middleware.exists("mongoose") ? this.middleware.emit("mongoose", model) : model);
                         }
                     }
                 });
